@@ -2,7 +2,7 @@
 //  AI GPS TRACKER — Premium App Logic
 // =============================================
 
-let GROQ_API_KEY = "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"; // Prompt user on start tracking
+let GROQ_API_KEY = " GROQ_API_KEY "; // Prompt user on start tracking
 let lastAiUpdate = 0;
 const AI_INTERVAL_MS = 10000;
 
