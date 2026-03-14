@@ -2,7 +2,7 @@
 //  AI GPS TRACKER — Premium App Logic
 // =============================================
 
-let GROQ_API_KEY = " GROQ_API_KEY "; // Prompt user on start tracking
+let GROQ_API_KEY = " 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  ";
 let lastAiUpdate = 0;
 const AI_INTERVAL_MS = 10000;
 
@@ -22,8 +22,8 @@ let isDark = true;
 
 function toggleTheme() {
     isDark = !isDark;
-    
-    if(isDark) {
+
+    if (isDark) {
         map.removeLayer(satelliteTiles);
         darkTiles.addTo(map);
         document.getElementById('themeBtn').querySelector('.material-icons-round').textContent = 'satellite';
@@ -37,7 +37,7 @@ function toggleTheme() {
 }
 
 function recenterMap() {
-    if(currentLat && currentLng) {
+    if (currentLat && currentLng) {
         map.setView([currentLat, currentLng], 16);
     }
 }
@@ -84,10 +84,10 @@ async function reverseGeocode(lat, lng) {
         const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=16`);
         const data = await res.json();
         const addr = data.address || {};
-        
+
         const road = addr.road || addr.neighbourhood || addr.suburb || addr.hamlet || "Unknown Area";
         const city = addr.city || addr.town || addr.village || addr.county || addr.state_district || addr.state || addr.country || '';
-        
+
         currentLocationName = `${road}${city ? ', ' + city : ''}`;
         fullAddressName = data.display_name || currentLocationName;
         document.getElementById('locationText').textContent = currentLocationName;
@@ -123,7 +123,7 @@ async function getAIInsights(lat, lng, speed) {
                 model: "llama-3.3-70b-versatile",
                 stream: false,
                 messages: [{
-                    role: "system", 
+                    role: "system",
                     content: "You are an AI Copilot. Give ONE short snappy insight (max 10 words) about the user's trip context. Start with a relevant icon (emoji fine here just for the text output)."
                 }, {
                     role: "user",
@@ -134,7 +134,7 @@ async function getAIInsights(lat, lng, speed) {
 
         const data = await response.json();
         const text = data.choices[0].message.content;
-        
+
         alertTitle.textContent = "Smart Insight";
         alertText.textContent = text;
         alertIcon.textContent = speed > 60 ? "speed" : "lightbulb";
@@ -166,7 +166,7 @@ document.getElementById('trackBtn').addEventListener('click', () => {
 function startTracking() {
     startTime = Date.now();
     timerInterval = setInterval(updateTimer, 1000);
-    
+
     document.getElementById('statusLabel').textContent = 'Tracking active';
     document.getElementById('statusLabel').classList.add('pulse');
 
@@ -176,21 +176,21 @@ function startTracking() {
     btn.style.boxShadow = '0 4px 16px rgba(239, 68, 68, 0.4)';
 
     watchId = navigator.geolocation.watchPosition(
-        onPositionUpdate, 
+        onPositionUpdate,
         (err) => {
             console.warn("GPS Error: " + err.message);
             // Fallback for file:/// execution or permission denied
-            if(err.code === err.PERMISSION_DENIED || window.location.protocol === 'file:') {
+            if (err.code === err.PERMISSION_DENIED || window.location.protocol === 'file:') {
                 console.log("Browser blocked HTML5 Geolocation. Falling back to IP-based location...");
                 getIpLocation();
             } else {
                 alert("GPS Error: " + err.message);
             }
-        }, 
+        },
         {
             enableHighAccuracy: true,
-            maximumAge: 2000,
-            timeout: 10000
+            maximumAge: 0, // Force the browser to grab a fresh GPS lock, not cached
+            timeout: 27000 // Mobile devices sometimes take up to 20s for a cold GPS lock
         }
     );
     isTracking = true;
@@ -202,14 +202,14 @@ async function getIpLocation() {
         document.getElementById('locationText').textContent = "Fetching IP location...";
         const res = await fetch('https://ipapi.co/json/');
         const data = await res.json();
-        
+
         if (data.error) throw new Error(data.reason);
 
         // Call the update function once with the approximate coordinates
         onPositionUpdate({
-            coords: { 
-                latitude: data.latitude, 
-                longitude: data.longitude, 
+            coords: {
+                latitude: data.latitude,
+                longitude: data.longitude,
                 accuracy: 5000 // Approximate
             },
             timestamp: Date.now()
@@ -219,7 +219,7 @@ async function getIpLocation() {
         currentLocationName = `${data.city}, ${data.region}`;
         fullAddressName = `${data.city}, ${data.region}, ${data.country_name || ''}`;
         document.getElementById('locationText').textContent = currentLocationName;
-        
+
     } catch (e) {
         console.warn("IP Geolocation failed:", e);
         document.getElementById('locationText').textContent = "Location unavailable offline";
@@ -265,7 +265,7 @@ function onPositionUpdate(pos) {
     marker.setLatLng([lat, lng]);
     map.panTo([lat, lng]);
 
-    if(accuracyCircle) map.removeLayer(accuracyCircle);
+    if (accuracyCircle) map.removeLayer(accuracyCircle);
     accuracyCircle = L.circle([lat, lng], {
         radius: accuracy,
         className: 'accuracy-circle'
@@ -273,9 +273,9 @@ function onPositionUpdate(pos) {
 
     // Update UI Stats
     document.getElementById('valSpeed').innerHTML = `${Math.round(speed)}<span>km/h</span>`;
-    
+
     if (totalDistance > 1000) {
-        document.getElementById('valDist').innerHTML = `${(totalDistance/1000).toFixed(2)}<span>km</span>`;
+        document.getElementById('valDist').innerHTML = `${(totalDistance / 1000).toFixed(2)}<span>km</span>`;
     } else {
         document.getElementById('valDist').innerHTML = `${Math.round(totalDistance)}<span>m</span>`;
     }
@@ -297,18 +297,18 @@ function sendQuickChat(text) {
 }
 
 let chatHistory = [{
-    role: "system", 
+    role: "system",
     content: "Professional AI Copilot for a mapping app. Keep answers highly concise and relevant to location navigation. Do not use markdown."
 }];
 
 async function sendChat() {
     const input = document.getElementById('chatInput');
     const text = input.value.trim();
-    if(!text) return;
+    if (!text) return;
     input.value = '';
 
     const msgs = document.getElementById('chatMessages');
-    
+
     msgs.insertAdjacentHTML('beforeend', `<div class="msg msg-user">${text}</div>`);
     msgs.scrollTop = msgs.scrollHeight;
 
@@ -326,9 +326,9 @@ async function sendChat() {
                 messages: chatHistory
             })
         });
-        
+
         const data = await res.json();
-        
+
         if (data.error) {
             msgs.insertAdjacentHTML('beforeend', `<div class="msg msg-ai">API Error: ${data.error.message || JSON.stringify(data.error)}</div>`);
             msgs.scrollTop = msgs.scrollHeight;
@@ -337,12 +337,12 @@ async function sendChat() {
 
         const reply = data.choices[0].message.content;
         const htmlReply = window.marked ? marked.parse(reply) : reply;
-        
+
         msgs.insertAdjacentHTML('beforeend', `<div class="msg msg-ai markdown-body">${htmlReply}</div>`);
         msgs.scrollTop = msgs.scrollHeight;
-        
+
         chatHistory.push({ role: "assistant", content: reply });
-    } catch(e) {
+    } catch (e) {
         console.error("Chatbot Error:", e);
         msgs.insertAdjacentHTML('beforeend', `<div class="msg msg-ai" style="color: #ef4444;">Connection failed. Cross-Origin block or network error on file:///. Ensure you are online.</div>`);
         msgs.scrollTop = msgs.scrollHeight;
@@ -356,14 +356,14 @@ async function initMapLocation() {
         const res = await fetch('https://ipapi.co/json/');
         const data = await res.json();
         if (data.error) return;
-        
+
         currentLat = data.latitude;
         currentLng = data.longitude;
-        
+
         // Use zoom level 12 for city level view
         map.setView([currentLat, currentLng], 12);
         marker.setLatLng([currentLat, currentLng]);
-        
+
         currentLocationName = `${data.city}, ${data.region}`;
         fullAddressName = `${data.city}, ${data.region}, ${data.country_name || ''}`;
         document.getElementById('locationText').textContent = currentLocationName;
