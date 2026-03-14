@@ -1,8 +1,6 @@
-// =============================================
-//  AI GPS TRACKER — Premium App Logic
-// =============================================
 
-let GROQ_API_KEY = " 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  ";
+
+let GROQ_API_KEY = "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";
 let lastAiUpdate = 0;
 const AI_INTERVAL_MS = 10000;
 
