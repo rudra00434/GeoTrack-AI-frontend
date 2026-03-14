@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>AI Premium Compass</title>
+    <!-- Google Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <!-- Shared Styles -->
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+        /* Specific Compass Page Styles */
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #101217;
+            /* Background grid for high-tech feel */
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 40px;
+            left: 20px;
+            z-index: 100;
+            background: var(--surface-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow-soft);
+            transition: all 0.2s;
+        }
+
+        .back-button:hover {
+            background: var(--surface-tertiary);
+            transform: scale(1.05);
+        }
+
+        .compass-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        .compass-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 8px solid var(--surface-secondary);
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5), 0 0 30px rgba(47, 128, 237, 0.2);
+            transition: transform 0.1s ease-out;
+            background: radial-gradient(circle, var(--surface-main) 60%, var(--surface-tertiary) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .compass-marks {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+
+        .compass-mark {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform-origin: 50% 140px; /* Half of 300px minus 10px padding */
+            font-weight: bold;
+            font-size: 18px;
+            color: var(--text-secondary);
+            transform: translateX(-50%);
+        }
+
+        .mark-n { color: #EF4444; font-size: 24px; } /* Red for North */
+
+        .compass-arrow {
+            position: absolute;
+            width: 24px;
+            height: 160px;
+            transition: transform 0.1s ease-out;
+            z-index: 10;
+        }
+
+        .arrow-up {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-bottom: 80px solid #EF4444;
+        }
+
+        .arrow-down {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-top: 80px solid var(--text-primary);
+        }
+        
+        .arrow-center {
+            position: absolute;
+            top: 72px;
+            left: -4px;
+            width: 32px;
+            height: 32px;
+            background: var(--surface-main);
+            border: 4px solid var(--text-secondary);
+            border-radius: 50%;
+            z-index: 11;
+        }
+
+        .heading-display {
+            background: var(--surface-secondary);
+            padding: 16px 32px;
+            border-radius: var(--radius-pill);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-float);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .heading-val {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        .heading-val span {
+            font-size: 16px;
+            color: var(--text-secondary);
+        }
+
+        .heading-label {
+            font-size: 14px;
+            color: var(--accent-blue);
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .permission-btn {
+            margin-top: 30px;
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: var(--radius-pill);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(47, 128, 237, 0.4);
+            display: none; /* hidden by default, shown if needed */
+        }
+
+        @media (max-width: 767px) {
+            .back-button {
+                top: max(20px, env(safe-area-inset-top));
+                left: 16px;
+                width: 44px;
+                height: 44px;
+            }
+            
+            .compass-container {
+                width: 260px;
+                height: 260px;
+                margin-bottom: 32px;
+            }
+
+            .compass-mark {
+                transform-origin: 50% 120px; /* Adjusted for 260px container */
+            }
+
+            .arrow-up, .arrow-down {
+                border-bottom-width: 70px;
+                border-top-width: 70px;
+            }
+
+            .arrow-center {
+                top: 62px;
+                width: 28px;
+                height: 28px;
+                left: -2px;
+            }
+
+            .heading-display {
+                padding: 12px 24px;
+            }
+
+            .heading-val {
+                font-size: 28px;
+            }
+        }
+        
+        /* Very small screens */
+        @media (max-width: 380px) {
+            .compass-container {
+                width: 220px;
+                height: 220px;
+            }
+            .compass-mark {
+                transform-origin: 50% 100px;
+                font-size: 14px;
+            }
+            .mark-n { font-size: 20px; }
+            .arrow-up, .arrow-down { border-bottom-width: 60px; border-top-width: 60px; }
+            .arrow-center { top: 52px; width: 24px; height: 24px; left: 0px; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <button class="back-button" onclick="location.href='index.html'" title="Back to Map">
+        <span class="material-icons-round">arrow_back</span>
+    </button>
+
+    <div class="compass-container">
+        <div class="compass-ring" id="compassRing">
+            <div class="compass-marks">
+                <div class="compass-mark mark-n" style="transform: translateX(-50%) rotate(0deg);">N</div>
+                <div class="compass-mark" style="transform: translateX(-50%) rotate(90deg);">E</div>
+                <div class="compass-mark" style="transform: translateX(-50%) rotate(180deg);">S</div>
+                <div class="compass-mark" style="transform: translateX(-50%) rotate(270deg);">W</div>
+                
+                <!-- Minor tick marks -->
+                <script>
+                    for(let i=0; i<360; i+=30) {
+                        if(i%90 !== 0) {
+                            document.write(`<div class="compass-mark" style="font-size: 10px; top: 15px; transform: translateX(-50%) rotate(${i}deg);">|</div>`);
+                        }
+                    }
+                </script>
+            </div>
+        </div>
+        
+        <div class="compass-arrow">
+            <div class="arrow-up"></div>
+            <div class="arrow-down"></div>
+            <div class="arrow-center"></div>
+        </div>
+    </div>
+
+    <div class="heading-display">
+        <div class="heading-val" id="headingVal">--<span>°</span></div>
+        <div class="heading-label" id="headingLabel">UNKNOWN</div>
+    </div>
+
+    <button class="permission-btn" id="permissionBtn" onclick="requestCompassPermission()">
+        Enable Compass Sensor
+    </button>
+
+    <script src="compass.js"></script>
+</body>
+
+</html>

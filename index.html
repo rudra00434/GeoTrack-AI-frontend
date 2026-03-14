@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Premium Tracker</title>
+    <!-- Google Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <!-- Leaflet & ChartJS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+
+    <!-- 1. MAP BACKGROUND -->
+    <div id="map"></div>
+
+    <!-- 2. TOP APP BAR -->
+    <div class="ui-layer top-bar">
+        <span class="material-icons-round" style="color: var(--accent-blue)">explore</span>
+        <div class="top-bar__info">
+            <div class="top-bar__title">Opex AI Navigator</div>
+            <div class="top-bar__subtitle" id="locationText">Searching location...</div>
+        </div>
+        <div class="profile-avatar">
+            <span class="material-icons-round" style="color: var(--text-secondary); font-size: 20px;">memory</span>
+        </div>
+    </div>
+
+    <!-- 3. MAP CONTROLS (Right Side) -->
+    <div class="ui-layer map-controls">
+        <button class="btn-float" id="btnRecenter" title="Recenter map" onclick="recenterMap()">
+            <span class="material-icons-round">gps_fixed</span>
+        </button>
+        <button class="btn-float" onclick="location.href='compass.html'" title="Open Compass">
+            <span class="material-icons-round">explore</span>
+        </button>
+        <button class="btn-float" id="themeBtn" title="Toggle Theme" onclick="toggleTheme()">
+            <span class="material-icons-round">satellite</span>
+        </button>
+        <button class="btn-float" id="chatBtn" title="Ask AI Assistant" onclick="toggleChat()">
+            <span class="material-icons-round" style="color: var(--accent-blue);">smart_toy</span>
+        </button>
+    </div>
+
+    <!-- 4. BOTTOM SHEET (Trip Details) -->
+    <div class="ui-layer bottom-sheet">
+        
+        <div class="sheet-header">
+            <div class="route-badge">
+                <span class="material-icons-round">route</span>
+                Live Trip Route
+            </div>
+            <div class="status-text pulse" id="statusLabel">Tracking active</div>
+        </div>
+
+        <div class="metrics-row">
+            <div class="metric">
+                <div class="metric__val" id="valSpeed">0<span>km/h</span></div>
+                <div class="metric__label">Speed</div>
+            </div>
+            <div class="metric">
+                <div class="metric__val" id="valDist">0<span>m</span></div>
+                <div class="metric__label">Distance</div>
+            </div>
+            <div class="metric">
+                <div class="metric__val" id="valTime">00:00</div>
+                <div class="metric__label">Duration</div>
+            </div>
+        </div>
+
+        <!-- AI Insight Alert Box -->
+        <div class="ai-alert" id="aiAlertBox">
+            <div class="ai-alert__icon">
+                <span class="material-icons-round">auto_awesome</span>
+            </div>
+            <div class="ai-alert__content">
+                <div class="ai-alert__title" id="aiAlertTitle">AI Assistant Ready</div>
+                <div class="ai-alert__text" id="aiAlertText">Start generating insights about your journey.</div>
+            </div>
+        </div>
+
+        <div class="sheet-actions">
+            <button class="btn-primary" id="trackBtn">
+                <span class="material-icons-round">play_arrow</span>
+                Start Tracking
+            </button>
+            <button class="btn-secondary" onclick="alert('Share feature coming soon!')">
+                <span class="material-icons-round">ios_share</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 5. CHAT MODAL OVERLAY -->
+    <div class="chat-overlay" id="chatOverlay" onclick="if(event.target===this) toggleChat()">
+        <div class="chat-modal">
+            <div class="chat-header">
+                <div class="chat-header__title">
+                    <span class="material-icons-round" style="color: var(--accent-blue)">smart_toy</span>
+                    Opex AI Copilot
+                </div>
+                <button class="close-btn" onclick="toggleChat()">
+                    <span class="material-icons-round">close</span>
+                </button>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <div class="msg msg-ai">Hi there! I'm your AI Copilot. What would you like to know about your current trip?</div>
+            </div>
+
+            <div class="chat-input-container">
+                <input type="text" id="chatInput" placeholder="Ask AI about traffic, area, speed..." onkeydown="if(event.key==='Enter')sendChat()">
+                <button class="chat-send" onclick="sendChat()">
+                    <span class="material-icons-round">send</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
